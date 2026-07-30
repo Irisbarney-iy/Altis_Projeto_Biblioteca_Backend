@@ -1,16 +1,24 @@
-# Build Tools
+# Maven
 target/
+
+# Gradle
 build/
 .gradle/
-*.jar
-*.class
 
-# IDEs
+# Java
+*.class
+*.jar
+
+# IntelliJ IDEA
 .idea/
 *.iml
-*.iws
 *.ipr
+*.iws
+
+# VS Code
 .vscode/
+
+# Eclipse
 .settings/
 .project
 .classpath
@@ -19,8 +27,18 @@ build/
 .apt_generated
 .factorypath
 
-# Sensitive Files
+# Environment
 .env
+.env.*
+
+# Logs
+logs/
 *.log
+
+# Temporary files
 *.tmp
 *.bak
+
+# OS
+.DS_Store
+Thumbs.db

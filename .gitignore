@@ -1,44 +1,33 @@
-# Maven
+HELP.md
 target/
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
 
-# Gradle
-build/
-.gradle/
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
 
-# Java
-*.class
-*.jar
-
-# IntelliJ IDEA
-.idea/
+### IntelliJ IDEA ###
+.idea
+*.iws
 *.iml
 *.ipr
-*.iws
 
-# VS Code
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
 .vscode/
-
-# Eclipse
-.settings/
-.project
-.classpath
-
-# Lombok
-.apt_generated
-.factorypath
-
-# Environment
-.env
-.env.*
-
-# Logs
-logs/
-*.log
-
-# Temporary files
-*.tmp
-*.bak
-
-# OS
-.DS_Store
-Thumbs.db

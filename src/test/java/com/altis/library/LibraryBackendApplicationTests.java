@@ -1,10 +1,10 @@
-package com.bibliotecabooks.demo;
+package com.altis.library;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class DemoApplicationTests {
+class LibraryBackendApplicationTests {
 
 	@Test
 	void contextLoads() {

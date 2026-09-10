@@ -6,6 +6,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "tb_books")
@@ -19,10 +23,10 @@ public class BookEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 150)
     private String titulo;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 100)
     private String autor;
 
     @Column(nullable = false)
@@ -37,5 +41,11 @@ public class BookEntity {
     @ManyToOne
     @JoinColumn(name = "publisher_id", nullable = false)
     private PublisherEntity publisher;
+
+    @CreatedDate
+    private LocalDateTime createdDate;
+
+    @LastModifiedDate
+    private LocalDateTime updatedDate;
 
 }

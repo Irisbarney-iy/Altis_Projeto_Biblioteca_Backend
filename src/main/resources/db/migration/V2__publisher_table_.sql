@@ -1,0 +1,9 @@
+CREATE TABLE tb_publishers (
+    id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    phone VARCHAR(15) NOT NULL UNIQUE,
+    site VARCHAR(200) UNIQUE,
+    created_date TIMESTAMP NOT NULL,
+    updated_date TIMESTAMP
+);

@@ -1,0 +1,14 @@
+CREATE TABLE tb_users (
+    id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    cpf VARCHAR(11) NOT NULL UNIQUE,
+    password VARCHAR(60) NOT NULL,
+    phone VARCHAR(15) NOT NULL,
+    birth_date DATE NOT NULL,
+    address VARCHAR(255) NOT NULL,
+    active BOOLEAN NOT NULL DEFAULT TRUE,
+    admin BOOLEAN NOT NULL DEFAULT FALSE,
+    created_date TIMESTAMP NOT NULL,
+    updated_date TIMESTAMP
+);

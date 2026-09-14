@@ -12,5 +12,5 @@ import java.util.List;
 public interface LoanRepository extends JpaRepository<LoanEntity, Long> {
 
     List<LoanEntity> findByUserId(Long userId);
-    Page<LoanEntity> findByActiveTrue(Pageable pageable);
+//    Page<LoanEntity> findByActiveTrue(Pageable pageable);
 }

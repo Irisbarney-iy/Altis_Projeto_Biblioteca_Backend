@@ -43,6 +43,9 @@ public class UserEntity {
     @Column(nullable = false, length = 15)
     private String phone;
 
+    @Column(nullable = false, length = 255)
+    private String address;
+
     @Column(nullable = false)
     private Boolean active = true;
 

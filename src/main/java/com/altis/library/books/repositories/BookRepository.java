@@ -9,5 +9,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface BookRepository extends JpaRepository<BookEntity, Long> {
 
-    Page<BookEntity> findByActiveTrue(Pageable pageable);
+//    Page<BookEntity> findByActiveTrue(Pageable pageable);
 }

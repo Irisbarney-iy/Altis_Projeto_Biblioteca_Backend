@@ -61,4 +61,11 @@ public class UserController{
         userService.inactive(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/{id}/activate")
+    public ResponseEntity<Void> activate(@PathVariable Long id){
+        userService.activate(id);
+        return ResponseEntity.noContent().build();
+    }
 }

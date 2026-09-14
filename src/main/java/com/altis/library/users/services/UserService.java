@@ -97,6 +97,14 @@ public class UserService {
         userRepository.save(user);
     }
 
+    @Transactional
+    public void activate(Long id){
+        UserEntity user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado!"));
+        user.setActive(true);
+        userRepository.save(user);
+    }
+
     private UserResponse toResponse(UserEntity entity){
         return new UserResponse(
                 entity.getId(),

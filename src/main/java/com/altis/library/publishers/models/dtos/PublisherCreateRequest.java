@@ -1,0 +1,26 @@
+package com.altis.library.publishers.models.dtos;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
+@Schema(description = "Informações para criação da editora")
+public record PublisherCreateRequest(
+
+        @Schema(description = "Nome da editora", example = "Record News")
+        @NotBlank(message = "O nome é obrigatório!")
+        @Size(min = 3, max = 100, message = "O nome deve ter entre 3 a 100 caracteres!")
+        String name,
+
+        @Schema(description = "E-mail da editora", example = "recordnews@gmail.com")
+        @NotBlank(message = "O E-mail é obrigatório!")
+        String email,
+
+        @Schema(description = "Telefone da editora", example = "85997387176")
+        @NotBlank(message = "O telefone é obrigatório!")
+        String phone,
+
+        @Schema(description = "Site da editora", example = "www.record.com")
+        String site
+
+) {}

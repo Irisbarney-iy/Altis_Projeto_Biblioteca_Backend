@@ -1,11 +1,9 @@
 package com.altis.library.publishers.controllers;
 
-
 import com.altis.library.publishers.models.dtos.PublisherCreateRequest;
 import com.altis.library.publishers.models.dtos.PublisherResponse;
 import com.altis.library.publishers.models.dtos.PublisherUpdateRequest;
 import com.altis.library.publishers.services.PublisherService;
-import com.altis.library.users.models.dtos.UserResponse;
 import jakarta.validation.Valid;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
@@ -14,7 +12,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -38,8 +35,7 @@ public class PublisherController {
 
     @PatchMapping("/{id}")
     public ResponseEntity<PublisherResponse> update(
-            @PathVariable Long id,
-            @RequestBody @Valid PublisherUpdateRequest request
+            @PathVariable Long id, @RequestBody @Valid PublisherUpdateRequest request
     ) {
         PublisherResponse response = publisherService.update(id, request);
         return ResponseEntity.ok(response);

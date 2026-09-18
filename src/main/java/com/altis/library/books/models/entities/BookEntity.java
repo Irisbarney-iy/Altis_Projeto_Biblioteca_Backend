@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
@@ -17,6 +18,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 public class BookEntity {
 
     @Id
@@ -24,25 +26,26 @@ public class BookEntity {
     private Long id;
 
     @Column(nullable = false, length = 150)
-    private String titulo;
+    private String title;
 
     @Column(nullable = false, length = 100)
-    private String autor;
+    private String author;
 
     @Column(nullable = false)
-    private Integer anoLancamento;
+    private Integer releaseYear;
 
     @Column(nullable = false)
-    private Integer quantidadeTotal;
+    private Integer totalQuantity;
 
     @Column(nullable = false)
-    private Integer quantidadeEmUso = 0;
+    private Integer inUseQuantity = 0;
 
     @ManyToOne
     @JoinColumn(name = "publisher_id", nullable = false)
     private PublisherEntity publisher;
 
     @CreatedDate
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdDate;
 
     @LastModifiedDate

@@ -5,8 +5,6 @@ import com.altis.library.publishers.models.dtos.PublisherResponse;
 import com.altis.library.publishers.models.dtos.PublisherUpdateRequest;
 import com.altis.library.publishers.models.entities.PublisherEntity;
 import com.altis.library.publishers.repositories.PublisherRepository;
-import com.altis.library.users.models.dtos.UserResponse;
-import com.altis.library.users.models.entities.UserEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;

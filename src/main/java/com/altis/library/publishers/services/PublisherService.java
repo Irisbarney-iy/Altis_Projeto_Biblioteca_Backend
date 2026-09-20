@@ -1,5 +1,6 @@
 package com.altis.library.publishers.services;
 
+import com.altis.library.books.repositories.BookRepository;
 import com.altis.library.publishers.models.dtos.PublisherCreateRequest;
 import com.altis.library.publishers.models.dtos.PublisherResponse;
 import com.altis.library.publishers.models.dtos.PublisherUpdateRequest;
@@ -14,9 +15,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class PublisherService {
 
     private final PublisherRepository publisherRepository;
+    private final BookRepository bookRepository;
 
-    public PublisherService(PublisherRepository publisherRepository) {
+    public PublisherService(PublisherRepository publisherRepository, BookRepository bookRepository) {
         this.publisherRepository = publisherRepository;
+        this.bookRepository = bookRepository;
     }
 
     @Transactional
@@ -60,7 +63,7 @@ public class PublisherService {
         }
 
         if(request.phone() != null && !request.phone().isBlank()){
-            publisher.setPhone(request.phone());
+            publisher.setPhone(request.phone().replaceAll("\\D", ""));
         }
 
         if(request.site() != null){
@@ -82,6 +85,18 @@ public class PublisherService {
     public Page<PublisherResponse> search(String term, Pageable pageable){
         return publisherRepository.findByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(
                 term, term, pageable).map(this::toResponse);
+    }
+
+    @Transactional
+    public void delete(Long id){
+        PublisherEntity publisher = publisherRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Editora não encontrada"));
+
+        if(bookRepository.existsByPublisherId(id)){
+            throw new IllegalStateException("Não é possivel excluir a editora pois há vinculo com ela!");
+        }
+
+        publisherRepository.deleteById(id);
     }
 
     private PublisherResponse toResponse(PublisherEntity entity){

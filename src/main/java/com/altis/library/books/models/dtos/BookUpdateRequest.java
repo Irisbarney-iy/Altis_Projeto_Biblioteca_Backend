@@ -1,9 +1,7 @@
 package com.altis.library.books.models.dtos;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 
 @Schema(description = "Informações para a atualização do livro")
 public record BookUpdateRequest(
@@ -17,14 +15,14 @@ public record BookUpdateRequest(
         String author,
 
         @Schema(description = "Data de lançamento do livro", example = "2020")
+        @Min(value = 1500, message = "O ano de lançamento deve ser maior que 1500")
         Integer releaseYear,
 
         @Schema(description = "Quantidade total de livros", example = "150")
-        @Positive(message = "A quantidade deve ser maior que zero!")
+        @PositiveOrZero(message = "A quantidade deve ser maior igual ou maior qur zero!")
         Integer totalQuantity,
 
         @Schema(description = "Identificador da editora para relações", example = "2")
-        @NotNull(message = "A editora é obrigatória!")
         Long publisherId
 
 ) {}

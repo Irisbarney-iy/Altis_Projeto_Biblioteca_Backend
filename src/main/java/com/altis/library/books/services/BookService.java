@@ -114,9 +114,7 @@ public class BookService {
                 entity.getTotalQuantity(),
                 entity.getInUseQuantity(),
                 entity.getPublisher().getId(),
-                entity.getPublisher().getName(),
-                entity.getCreatedDate(),
-                entity.getUpdatedDate()
+                entity.getPublisher().getName()
         );
     }
 }

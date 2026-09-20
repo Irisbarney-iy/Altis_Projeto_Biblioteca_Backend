@@ -1,10 +1,7 @@
 package com.altis.library.books.models.dtos;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 
 @Schema(description = "Informações para criação do livro")
 public record BookCreateRequest(
@@ -21,6 +18,7 @@ public record BookCreateRequest(
 
         @Schema(description = "Data de lançamento do livro", example = "2020")
         @NotNull(message = "A data de lançamento é obrigatória!")
+        @Min(value = 1500, message = "O ano de lançamento deve ser maior que 1500")
         Integer releaseYear,
 
         @Schema(description = "Quantidade total de livros", example = "150")

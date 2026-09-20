@@ -16,6 +16,8 @@ public record UserCreateRequest(
         @Schema(description = "E-mail válido para login", example = "joao@gmail.com")
         @NotBlank(message = "O e-mail é obrigatório!")
         @Email(message = "O formato do e-mail é inválido!")
+        @Pattern(regexp = "^[a-zA-Z0-9._%+-]+@gmail\\.com$", message = "O e-mail deve ser com @gmail.com!")
+        @Size(max = 100, message = "O e-mail não pode ter mais que 100 caracteres!")
         String email,
 
         @Schema(description = "CPF válido do locatario", example = "111.222.333-44")
@@ -30,10 +32,12 @@ public record UserCreateRequest(
 
         @Schema(description = "Telefone", example = "85997377275")
         @NotBlank(message = "O telefone é obrigatório!")
+        @Size(min = 8, max = 20, message = "O telefone deve ter entre 8 e 20 caracteres!")
         String phone,
 
         @Schema(description = "Endereço residencial completo", example = "Rua das Flores, 123 - Fortaleza/CE")
         @NotBlank(message = "O endereço é obrigatório!")
+        @Size(max = 255, message = "O endereço não pode ter mais que 255 caracteres!")
         String address,
 
         @Schema(description = "Data de nascimento no formato YYYY-MM-DD", example = "1998-05-20")

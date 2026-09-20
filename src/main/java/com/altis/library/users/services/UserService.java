@@ -34,8 +34,10 @@ public class UserService {
         UserEntity user = new UserEntity();
         user.setName(request.name());
         user.setEmail(request.email());
-        user.setCpf(request.cpf());
-        user.setPhone(request.phone());
+        String cpfNumberOnly = request.cpf().replaceAll("\\D", "");
+        user.setCpf(cpfNumberOnly);
+        String phoneNumberOnly = request.phone().replaceAll("\\D","");
+        user.setPhone(phoneNumberOnly);
         user.setAddress(request.address());
         user.setBirthDate(request.birthDate());
 

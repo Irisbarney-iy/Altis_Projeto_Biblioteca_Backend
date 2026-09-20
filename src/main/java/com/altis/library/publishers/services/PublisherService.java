@@ -32,7 +32,8 @@ public class PublisherService {
         PublisherEntity publisher = new PublisherEntity();
         publisher.setName(request.name());
         publisher.setEmail(request.email());
-        publisher.setPhone(request.phone());
+        String phoneNumberOnly = request.phone().replaceAll("\\D","");
+        publisher.setPhone(phoneNumberOnly);
         publisher.setSite(request.site());
 
         PublisherEntity savedPublisher = publisherRepository.save(publisher);
@@ -89,9 +90,7 @@ public class PublisherService {
                 entity.getName(),
                 entity.getEmail(),
                 entity.getPhone(),
-                entity.getSite(),
-                entity.getCreatedDate(),
-                entity.getUpdatedDate()
+                entity.getSite()
         );
     }
 

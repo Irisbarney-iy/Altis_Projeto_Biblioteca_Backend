@@ -2,8 +2,6 @@ package com.altis.library.publishers.models.dtos;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-import java.time.LocalDateTime;
-
 @Schema(description = "Informações da editora retornadas pela api")
 public record PublisherResponse(
 
@@ -20,12 +18,6 @@ public record PublisherResponse(
         String phone,
 
         @Schema(description = "Site da editora", example = "www.record.com")
-        String site,
-
-        @Schema(description = "Data de criação da editora", example = "2026/09/12")
-        LocalDateTime createdDate,
-
-        @Schema(description = "Data de atualização da editora", example = "2026/09/12")
-        LocalDateTime updatedDate
+        String site
 
 ) {}

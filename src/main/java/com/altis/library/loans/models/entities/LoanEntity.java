@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -20,6 +21,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 public class LoanEntity {
 
     @Id
@@ -35,13 +37,13 @@ public class LoanEntity {
     private BookEntity book;
 
     @Column(nullable = false)
-    private LocalDate dataEmprestimo;
+    private LocalDate loanDate;
 
     @Column(nullable = false)
-    private LocalDate prazoLimite;
+    private LocalDate limitTerm;
 
     @Column
-    private LocalDate dataDevolucao;
+    private LocalDate returnedDate;
 
     @Enumerated(EnumType.STRING)
     @Column(length = 25)

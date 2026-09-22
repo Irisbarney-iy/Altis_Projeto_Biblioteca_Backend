@@ -1,5 +1,8 @@
 package com.altis.library.loans.models.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum LoansStatus {
     RENTED("Alugado"),
     OVERDUE("Atrasado"),
@@ -12,7 +15,4 @@ public enum LoansStatus {
         this.description = description;
     }
 
-    public String getDescription(){
-        return description;
-    }
 }

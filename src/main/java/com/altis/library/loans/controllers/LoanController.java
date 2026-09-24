@@ -12,6 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,6 +28,7 @@ public class LoanController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<LoanResponse> create(@RequestBody @Valid LoanCreateRequest request) {
         LoanResponse response = loanService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -39,6 +41,7 @@ public class LoanController {
     }
 
     @GetMapping("/search")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<LoanResponse>> search(
             @RequestParam(required = false, defaultValue = "") String term,
             @ParameterObject @PageableDefault(page = 0, size = 10, sort = "loanDate", direction = Sort.Direction.DESC) Pageable pageable

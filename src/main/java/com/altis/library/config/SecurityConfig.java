@@ -40,11 +40,15 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/users").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-
                         .requestMatchers(HttpMethod.POST, "/books/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/books/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/books/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/publishers/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/loans/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/loans/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/loans/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/loans/my-loans").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/loans/**").hasRole("ADMIN")
 
                         .anyRequest().authenticated()
                 )

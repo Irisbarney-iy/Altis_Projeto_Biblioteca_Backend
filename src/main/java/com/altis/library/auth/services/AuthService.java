@@ -28,6 +28,8 @@ public class AuthService {
             throw new RuntimeException("E-mail ou senha inválidos");
         }
         var token = tokenService.generateToken(user);
-        return new TokenResponse(token);
+
+        String role = Boolean.TRUE.equals(user.getAdmin()) ? "ROLE_ADMIN" : "ROLE_USER";
+        return new TokenResponse(token, role);
     }
 }

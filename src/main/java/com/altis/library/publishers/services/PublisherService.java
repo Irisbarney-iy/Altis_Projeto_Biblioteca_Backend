@@ -19,9 +19,7 @@ public class PublisherService {
     private final BookRepository bookRepository;
     private final PublisherMapper publisherMapper;
 
-    public PublisherService(PublisherRepository publisherRepository,
-                            BookRepository bookRepository,
-                            PublisherMapper publisherMapper) {
+    public PublisherService(PublisherRepository publisherRepository, BookRepository bookRepository, PublisherMapper publisherMapper) {
         this.publisherRepository = publisherRepository;
         this.bookRepository = bookRepository;
         this.publisherMapper = publisherMapper;
@@ -32,11 +30,9 @@ public class PublisherService {
         if (publisherRepository.existsByEmail(request.email())) {
             throw new IllegalArgumentException("E-mail já cadastrado!");
         }
-
         if (publisherRepository.existsByName(request.name())) {
             throw new IllegalArgumentException("Nome de editora já cadastrada!");
         }
-
         PublisherEntity publisher = publisherMapper.toEntity(request);
         PublisherEntity savedPublisher = publisherRepository.save(publisher);
 
@@ -81,9 +77,8 @@ public class PublisherService {
 
     @Transactional
     public void delete(Long id) {
-        PublisherEntity publisher = publisherRepository.findById(id)
+        publisherRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Editora não encontrada"));
-
         if (bookRepository.existsByPublisherId(id)) {
             throw new IllegalStateException("Não é possível excluir a editora pois há vínculo com ela!");
         }

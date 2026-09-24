@@ -1,5 +1,6 @@
 package com.altis.library.books.services;
 
+import com.altis.library.books.mappers.BookMapper;
 import com.altis.library.books.models.dtos.BookCreateRequest;
 import com.altis.library.books.models.dtos.BookResponse;
 import com.altis.library.books.models.dtos.BookUpdateRequest;
@@ -17,104 +18,78 @@ public class BookService {
 
     private final BookRepository bookRepository;
     private final PublisherRepository publisherRepository;
+    private final BookMapper bookMapper;
 
-    public BookService(BookRepository bookRepository, PublisherRepository publisherRepository) {
+    public BookService(BookRepository bookRepository, PublisherRepository publisherRepository, BookMapper bookMapper) {
         this.bookRepository = bookRepository;
         this.publisherRepository = publisherRepository;
+        this.bookMapper = bookMapper;
     }
 
     @Transactional
-    public BookResponse create(BookCreateRequest request){
-        if(bookRepository.existsByTitleIgnoreCaseAndAuthorContainingIgnoreCaseAndPublisherId(request.title(),  request.author(), request.publisherId())){
+    public BookResponse create(BookCreateRequest request) {
+        if (bookRepository.existsByTitleIgnoreCaseAndAuthorContainingIgnoreCaseAndPublisherId(
+                request.title(), request.author(), request.publisherId())) {
             throw new IllegalArgumentException("Esse livro já está cadastrado para essa editora!");
         }
 
         PublisherEntity publisher = publisherRepository.findById(request.publisherId())
                 .orElseThrow(() -> new IllegalArgumentException("Editora não encontrada!"));
 
-        BookEntity book = new BookEntity();
-        book.setTitle(request.title());
-        book.setAuthor(request.author());
-        book.setReleaseYear(request.releaseYear());
-        book.setTotalQuantity(request.totalQuantity());
-        book.setPublisher(publisher);
-
+        BookEntity book = bookMapper.toEntity(request, publisher);
         BookEntity savedBook = bookRepository.save(book);
-        return toResponse(savedBook);
+
+        return bookMapper.toResponse(savedBook);
     }
 
     @Transactional
-    public BookResponse update(Long id, BookUpdateRequest request){
+    public BookResponse update(Long id, BookUpdateRequest request) {
         BookEntity book = bookRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Livro não encontrado"));
-        if(request.totalQuantity() != null){
-            if(request.totalQuantity() < book.getInUseQuantity()) {
+
+        if (request.totalQuantity() != null) {
+            if (request.totalQuantity() < book.getInUseQuantity()) {
                 throw new IllegalArgumentException(
-                        "O total de livros(" + request.totalQuantity() + ") não pode ser menor que a quantidad de livros emprestados (" + book.getInUseQuantity() + ")!"
+                        "O total de livros(" + request.totalQuantity() + ") não pode ser menor que a quantidade de livros emprestados (" + book.getInUseQuantity() + ")!"
                 );
             }
-            book.setTotalQuantity(request.totalQuantity());
         }
 
-        if(request.title() != null && !request.title().isBlank()){
-            book.setTitle(request.title());
-        }
-
-        if(request.author() != null && !request.author().isBlank()) {
-            book.setAuthor(request.author());
-        }
-
-        if(request.releaseYear() != null){
-            book.setReleaseYear(request.releaseYear());
-        }
-
-        if(request.publisherId() != null){
-            PublisherEntity publisher = publisherRepository.findById(request.publisherId())
+        PublisherEntity newPublisher = null;
+        if (request.publisherId() != null) {
+            newPublisher = publisherRepository.findById(request.publisherId())
                     .orElseThrow(() -> new IllegalArgumentException("Editora não encontrada"));
-            book.setPublisher(publisher);
         }
 
+        bookMapper.updateEntityFromDto(request, book, newPublisher);
         BookEntity savedBook = bookRepository.save(book);
-        return toResponse(savedBook);
+
+        return bookMapper.toResponse(savedBook);
     }
 
     @Transactional(readOnly = true)
-    public Page<BookResponse> search(String term, Pageable pageable){
+    public Page<BookResponse> search(String term, Pageable pageable) {
         return bookRepository
                 .findByTitleContainingIgnoreCaseOrAuthorContainingIgnoreCase(term, term, pageable)
-                .map(this::toResponse);
+                .map(bookMapper::toResponse);
     }
 
     @Transactional(readOnly = true)
-    public BookResponse findById(Long id){
+    public BookResponse findById(Long id) {
         return bookRepository.findById(id)
-                .map(this::toResponse)
+                .map(bookMapper::toResponse)
                 .orElseThrow(() -> new IllegalArgumentException("Esse livro não existe"));
     }
 
     @Transactional
-    public void delete(Long id){
+    public void delete(Long id) {
         BookEntity book = bookRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Livro não encontrado"));
-        if(book.getInUseQuantity() > 0){
-            throw new IllegalStateException("Livro não pode ser excluido");
+
+        if (book.getInUseQuantity() > 0) {
+            throw new IllegalStateException("Livro não pode ser excluído pois possui exemplares emprestados!");
         }
 
         bookRepository.delete(book);
-
-    }
-
-
-    private BookResponse toResponse(BookEntity entity){
-        return new BookResponse(
-                entity.getId(),
-                entity.getTitle(),
-                entity.getAuthor(),
-                entity.getReleaseYear(),
-                entity.getTotalQuantity(),
-                entity.getInUseQuantity(),
-                entity.getPublisher().getId(),
-                entity.getPublisher().getName()
-        );
     }
 }

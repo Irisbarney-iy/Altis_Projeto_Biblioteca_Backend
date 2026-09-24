@@ -2,6 +2,7 @@ package com.altis.library.loans.services;
 
 import com.altis.library.books.models.entities.BookEntity;
 import com.altis.library.books.repositories.BookRepository;
+import com.altis.library.loans.mappers.LoanMapper;
 import com.altis.library.loans.models.dtos.LoanCreateRequest;
 import com.altis.library.loans.models.dtos.LoanRenewRequest;
 import com.altis.library.loans.models.dtos.LoanResponse;
@@ -24,25 +25,26 @@ public class LoanService {
     private final LoanRepository loanRepository;
     private final UserRepository userRepository;
     private final BookRepository bookRepository;
+    private final LoanMapper loanMapper;
 
-    public LoanService(LoanRepository loanRepository, UserRepository userRepository, BookRepository bookRepository) {
+    public LoanService(LoanRepository loanRepository, UserRepository userRepository, BookRepository bookRepository, LoanMapper loanMapper) {
         this.loanRepository = loanRepository;
         this.userRepository = userRepository;
         this.bookRepository = bookRepository;
+        this.loanMapper = loanMapper;
     }
 
     @Transactional
     public LoanResponse create(LoanCreateRequest request) {
         UserEntity user = userRepository.findById(request.userId())
                 .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado!"));
-        if(!Boolean.TRUE.equals(user.getActive())) {
+
+        if (!Boolean.TRUE.equals(user.getActive())) {
             throw new IllegalStateException("Usuário inativo não pode realizar empréstimos");
         }
-
         LocalDate today = LocalDate.now();
 
-        boolean activeDelay = loanRepository.existsByUserIdAndStatus(user.getId(), LoansStatus.OVERDUE)
-                || loanRepository.existsByUserIdAndStatusAndLimitTermBefore(user.getId(), LoansStatus.RENTED, today);
+        boolean activeDelay = loanRepository.existsByUserIdAndStatus(user.getId(), LoansStatus.OVERDUE) || loanRepository.existsByUserIdAndStatusAndLimitTermBefore(user.getId(), LoansStatus.RENTED, today);
 
         if (activeDelay) {
             throw new IllegalStateException("Empréstimo negado! O usuário possui pendências em atraso.");
@@ -67,15 +69,10 @@ public class LoanService {
         book.setInUseQuantity(book.getInUseQuantity() + 1);
         bookRepository.save(book);
 
-        LoanEntity loan = new LoanEntity();
-        loan.setUser(user);
-        loan.setBook(book);
-        loan.setLoanDate(today);
-        loan.setLimitTerm(request.termLimit());
-        loan.setStatus(LoansStatus.RENTED);
-
+        LoanEntity loan = loanMapper.toEntity(request, user, book, today);
         LoanEntity savedLoan = loanRepository.save(loan);
-        return toResponse(savedLoan);
+
+        return loanMapper.toResponse(savedLoan);
     }
 
     @Transactional
@@ -101,14 +98,14 @@ public class LoanService {
         bookRepository.save(book);
 
         LoanEntity updatedLoan = loanRepository.save(loan);
-        return toResponse(updatedLoan);
+        return loanMapper.toResponse(updatedLoan);
     }
 
     @Transactional(readOnly = true)
     public LoanResponse findById(Long id) {
         LoanEntity loan = loanRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Empréstimo não encontrado"));
-        return toResponse(updateStatusDelay(loan));
+        return loanMapper.toResponse(updateStatusDelay(loan));
     }
 
     @Transactional(readOnly = true)
@@ -116,11 +113,11 @@ public class LoanService {
         if (term == null || term.isBlank()) {
             return loanRepository.findAll(pageable)
                     .map(this::updateStatusDelay)
-                    .map(this::toResponse);
+                    .map(loanMapper::toResponse);
         }
         return loanRepository.searchByTerm(term, pageable)
                 .map(this::updateStatusDelay)
-                .map(this::toResponse);
+                .map(loanMapper::toResponse);
     }
 
     @Transactional(readOnly = true)
@@ -128,7 +125,7 @@ public class LoanService {
         return loanRepository.findByUserId(userId)
                 .stream()
                 .map(this::updateStatusDelay)
-                .map(this::toResponse)
+                .map(loanMapper::toResponse)
                 .toList();
     }
 
@@ -143,6 +140,7 @@ public class LoanService {
     public LoanResponse renew(Long id, LoanRenewRequest request) {
         LoanEntity loan = loanRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Empréstimo não encontrado!"));
+
         if (loan.getReturnedDate() != null) {
             throw new IllegalStateException("Não é possível renovar um empréstimo que já foi devolvido!");
         }
@@ -154,20 +152,6 @@ public class LoanService {
         loan.setLimitTerm(request.newTerm());
 
         LoanEntity updatedLoan = loanRepository.save(loan);
-        return toResponse(updatedLoan);
-    }
-
-    private LoanResponse toResponse(LoanEntity entity) {
-        return new LoanResponse(
-                entity.getId(),
-                entity.getUser().getId(),
-                entity.getUser().getName(),
-                entity.getBook().getId(),
-                entity.getBook().getTitle(),
-                entity.getLoanDate(),
-                entity.getLimitTerm(),
-                entity.getReturnedDate(),
-                entity.getStatus()
-        );
+        return loanMapper.toResponse(updatedLoan);
     }
 }

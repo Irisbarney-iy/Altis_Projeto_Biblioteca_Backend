@@ -36,19 +36,22 @@ public class SecurityConfig {
                 .cors(org.springframework.security.config.Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
+                .authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/users").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/books/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/books/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/books/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/publishers/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/loans/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PATCH, "/loans/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/loans/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/loans/my-loans").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/loans/**").hasRole("ADMIN")
+
+                        .requestMatchers("/users/me").authenticated()
+                        .requestMatchers("/loans/me").hasRole("USER")
+
+                        .requestMatchers(HttpMethod.GET, "/books/**").authenticated()
+
+                        .requestMatchers("/books/**").hasRole("ADMIN")
+                        .requestMatchers("/publishers/**").hasRole("ADMIN")
+                        .requestMatchers("/loans/**").hasRole("ADMIN")
+                        .requestMatchers("/users/**").hasRole("ADMIN")
 
                         .anyRequest().authenticated()
                 )

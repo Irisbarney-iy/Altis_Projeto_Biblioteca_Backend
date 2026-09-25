@@ -58,7 +58,6 @@ public class LoanService {
         if (activeLoans >= 5) {
             throw new IllegalStateException("Empréstimo negado! O usuário atingiu o limite máximo de 5 empréstimos ativos");
         }
-
         BookEntity book = bookRepository.findById(request.bookId())
                 .orElseThrow(() -> new IllegalArgumentException("Livro não encontrado!"));
 

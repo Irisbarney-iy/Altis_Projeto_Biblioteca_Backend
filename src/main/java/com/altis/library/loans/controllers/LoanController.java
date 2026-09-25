@@ -4,6 +4,7 @@ import com.altis.library.loans.models.dtos.LoanCreateRequest;
 import com.altis.library.loans.models.dtos.LoanRenewRequest;
 import com.altis.library.loans.models.dtos.LoanResponse;
 import com.altis.library.loans.services.LoanService;
+import com.altis.library.users.models.entities.UserEntity;
 import jakarta.validation.Valid;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
@@ -13,6 +14,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,6 +34,13 @@ public class LoanController {
     public ResponseEntity<LoanResponse> create(@RequestBody @Valid LoanCreateRequest request) {
         LoanResponse response = loanService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<List<LoanResponse>> getMyLoans(Authentication authentication) {
+        UserEntity currentUser = (UserEntity) authentication.getPrincipal();
+        List<LoanResponse> myLoans = loanService.findByUserId(currentUser.getId());
+        return ResponseEntity.ok(myLoans);
     }
 
     @GetMapping("/{id}")

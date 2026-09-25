@@ -71,8 +71,14 @@ public class PublisherService {
 
     @Transactional(readOnly = true)
     public Page<PublisherResponse> search(String term, Pageable pageable) {
-        return publisherRepository.findByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(
-                term, term, pageable).map(publisherMapper::toResponse);
+        if (term == null || term.isBlank()) {
+            return publisherRepository.findAll(pageable)
+                    .map(publisherMapper::toResponse);
+        }
+
+        return publisherRepository
+                .findByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(term, term, pageable)
+                .map(publisherMapper::toResponse);
     }
 
     @Transactional

@@ -69,6 +69,11 @@ public class BookService {
 
     @Transactional(readOnly = true)
     public Page<BookResponse> search(String term, Pageable pageable) {
+        if (term == null || term.isBlank()) {
+            return bookRepository.findAll(pageable)
+                    .map(bookMapper::toResponse);
+        }
+
         return bookRepository
                 .findByTitleContainingIgnoreCaseOrAuthorContainingIgnoreCase(term, term, pageable)
                 .map(bookMapper::toResponse);

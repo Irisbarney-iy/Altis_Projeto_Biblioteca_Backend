@@ -8,63 +8,64 @@ import jakarta.validation.Valid;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
 @RequestMapping("/users")
-public class UserController{
+public class UserController {
 
     private final UserService userService;
 
-    public UserController(UserService userService){
+    public UserController(UserService userService) {
         this.userService = userService;
     }
 
     @PostMapping
-    public ResponseEntity<UserResponse> create(@RequestBody @Valid UserCreateRequest request){
+    public ResponseEntity<UserResponse> create(@RequestBody @Valid UserCreateRequest request, UriComponentsBuilder uriBuilder) {
         UserResponse response = userService.create(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        var uri = uriBuilder.path("/users/{id}").buildAndExpand(response.id()).toUri();
+        return ResponseEntity.created(uri).body(response);
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<UserResponse> update(
-            @PathVariable Long id,
-            @RequestBody @Valid UserUpdateRequest request
+    @GetMapping("/me")
+    public ResponseEntity<UserResponse> getMyProfile(Authentication authentication) {
+        return ResponseEntity.ok(userService.findByEmail(authentication.getName()));
+    }
+
+    @PatchMapping("/me")
+    public ResponseEntity<UserResponse> updateMyProfile(@RequestBody UserUpdateRequest request, Authentication authentication) {
+        return ResponseEntity.ok(userService.updateByEmail(authentication.getName(), request));
+    }
+    @GetMapping("/search")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Page<UserResponse>> search(
+            @RequestParam(required = false, defaultValue = "") String term,
+            @ParameterObject @PageableDefault(size = 10, sort = "name") Pageable pageable
     ) {
-        UserResponse response = userService.update(id, request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(userService.search(term, pageable));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserResponse> findById(@PathVariable Long id){
-        UserResponse response = userService.findById(id);
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/search")
-    public ResponseEntity<Page<UserResponse>> search(
-            @RequestParam(required = false) String term,
-            @ParameterObject @PageableDefault(page = 0, size = 10, sort = "name", direction = Sort.Direction.ASC) Pageable pageable
-    ){
-        Page<UserResponse> response = userService.search(term, pageable);
-        return ResponseEntity.ok(response);
-    }
-
     @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserResponse> findById(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.findById(id));
+    }
+
     @PatchMapping("/{id}/inactive")
-    public ResponseEntity<Void> inactive(@PathVariable Long id){
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> inactive(@PathVariable Long id) {
         userService.inactive(id);
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}/activate")
-    public ResponseEntity<Void> activate(@PathVariable Long id){
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> activate(@PathVariable Long id) {
         userService.activate(id);
         return ResponseEntity.noContent().build();
     }

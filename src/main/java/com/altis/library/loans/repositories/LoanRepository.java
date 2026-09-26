@@ -25,4 +25,10 @@ public interface LoanRepository extends JpaRepository<LoanEntity, Long> {
     Page<LoanEntity> searchByTerm(@Param("term") String term, Pageable pageable);
 
     List<LoanEntity> findByUserId(Long userId);
+
+    long countByStatusIn(List<LoansStatus> statuses);
+
+    long countByLoanDateBetween(LocalDate startDate, LocalDate endDate);
+
+    List<LoanEntity> findByStatusOrLimitTermBeforeAndReturnedDateIsNull(LoansStatus status, LocalDate limitTerm);
 }

@@ -3,7 +3,6 @@ package com.altis.library.dashboard.controllers;
 import com.altis.library.dashboard.models.dtos.AdminDashboardResponse;
 import com.altis.library.dashboard.models.dtos.UserDashboardResponse;
 import com.altis.library.dashboard.services.DashboardService;
-import com.altis.library.users.models.entities.UserEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -30,7 +29,7 @@ public class DashboardController {
     @GetMapping("/user")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<UserDashboardResponse> getUserDashboard(Authentication authentication) {
-        UserEntity currentUser = (UserEntity) authentication.getPrincipal();
-        return ResponseEntity.ok(dashboardService.getUserDashboard(currentUser.getId()));
+        String email = authentication.getName();
+        return ResponseEntity.ok(dashboardService.getUserDashboardByEmail(email));
     }
 }

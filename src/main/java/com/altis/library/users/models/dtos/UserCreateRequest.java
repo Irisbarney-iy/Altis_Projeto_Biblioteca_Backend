@@ -25,9 +25,10 @@ public record UserCreateRequest(
         @CPF(message = "CPF inválido!")
         String cpf,
 
-        @Schema(description = "Senha de acesso", example = "Senha@123")
-        @NotBlank(message = "A senha é obrigatória!")
-        @Size(min = 6, message = "A senha deve ter no mínimo 6 caracteres!")
+        @NotBlank(message = "A senha é obrigatória")
+        @Size(min = 8, max = 15, message = "A senha deve ter entre 8 e 15 caracteres")
+        @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[@$!%*?&.#_\\-])[A-Za-z\\d@$!%*?&.#_\\-]{8,15}$", message = "A senha deve conter letras, números e caracteres especiais")
+        @Schema(example = "Senha123@")
         String password,
 
         @Schema(description = "Telefone", example = "85997377275")

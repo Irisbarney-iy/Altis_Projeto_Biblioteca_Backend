@@ -6,6 +6,8 @@ import com.altis.library.dashboard.models.dtos.UserDashboardResponse;
 import com.altis.library.loans.models.entities.LoanEntity;
 import com.altis.library.loans.models.enums.LoansStatus;
 import com.altis.library.loans.repositories.LoanRepository;
+import com.altis.library.users.models.entities.UserEntity;
+import com.altis.library.users.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,10 +21,12 @@ public class DashboardService {
 
     private final BookRepository bookRepository;
     private final LoanRepository loanRepository;
+    private final UserRepository userRepository;
 
-    public DashboardService(BookRepository bookRepository, LoanRepository loanRepository) {
+    public DashboardService(BookRepository bookRepository, LoanRepository loanRepository, UserRepository userRepository) {
         this.bookRepository = bookRepository;
         this.loanRepository = loanRepository;
+        this.userRepository = userRepository;
     }
 
     @Transactional(readOnly = true)
@@ -33,7 +37,6 @@ public class DashboardService {
                 .stream()
                 .mapToLong(book -> book.getTotalQuantity() != null ? book.getTotalQuantity() : 0)
                 .sum();
-
         long activeLoans = loanRepository.countByStatusIn(List.of(LoansStatus.RENTED, LoansStatus.OVERDUE));
 
         LocalDate startOfMonth = YearMonth.now().atDay(1);
@@ -43,7 +46,6 @@ public class DashboardService {
         List<LoanEntity> overdueLoans = loanRepository.findByStatusOrLimitTermBeforeAndReturnedDateIsNull(
                 LoansStatus.OVERDUE, today
         );
-
         List<AdminDashboardResponse.CriticalDelayDTO> criticalDelays = overdueLoans.stream()
                 .filter(loan -> today.isAfter(loan.getLimitTerm()))
                 .sorted((l1, l2) -> l1.getLimitTerm().compareTo(l2.getLimitTerm()))
@@ -54,10 +56,15 @@ public class DashboardService {
                         ChronoUnit.DAYS.between(loan.getLimitTerm(), today)
                 ))
                 .toList();
-
         return new AdminDashboardResponse(totalBooks, activeLoans, monthlyLoans, criticalDelays);
     }
 
+    @Transactional(readOnly = true)
+    public UserDashboardResponse getUserDashboardByEmail(String email) {
+        UserEntity user = userRepository.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado!"));
+        return getUserDashboard(user.getId());
+    }
     @Transactional(readOnly = true)
     public UserDashboardResponse getUserDashboard(Long userId) {
         LocalDate today = LocalDate.now();
@@ -65,7 +72,6 @@ public class DashboardService {
         long activeLoans = loanRepository.countByUserIdAndStatusIn(
                 userId, List.of(LoansStatus.RENTED, LoansStatus.OVERDUE)
         );
-
         List<LoanEntity> userLoans = loanRepository.findByUserId(userId);
         long totalDelays = userLoans.stream()
                 .filter(loan -> loan.getReturnedDate() == null && today.isAfter(loan.getLimitTerm()))
@@ -74,7 +80,6 @@ public class DashboardService {
         long totalReturned = userLoans.stream()
                 .filter(loan -> loan.getReturnedDate() != null)
                 .count();
-
         List<UserDashboardResponse.MyBookDTO> myBooks = userLoans.stream()
                 .filter(loan -> loan.getReturnedDate() == null)
                 .limit(5)
@@ -82,7 +87,6 @@ public class DashboardService {
                     long daysOverdue = today.isAfter(loan.getLimitTerm())
                             ? ChronoUnit.DAYS.between(loan.getLimitTerm(), today)
                             : 0;
-
                     return new UserDashboardResponse.MyBookDTO(
                             loan.getBook().getTitle(),
                             loan.getBook().getAuthor(),
@@ -92,7 +96,6 @@ public class DashboardService {
                     );
                 })
                 .toList();
-
         return new UserDashboardResponse(activeLoans, totalDelays, totalReturned, myBooks);
     }
 }

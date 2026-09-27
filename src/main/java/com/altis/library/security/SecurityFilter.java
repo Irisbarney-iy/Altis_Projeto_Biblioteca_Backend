@@ -33,13 +33,14 @@ public class SecurityFilter extends OncePerRequestFilter {
         if (token != null) {
             var login = tokenService.validateToken(token);
             if (login != null) {
-                var userOptional = userRepository.findByEmail(login);
+                var userOptional = userRepository.findByEmailIgnoreCase(login);
                 if (userOptional.isPresent()) {
                     var user = userOptional.get();
                     boolean isAdmin = Boolean.TRUE.equals(user.getAdmin());
                     String roleName = isAdmin ? "ROLE_ADMIN" : "ROLE_USER";
                     var authorities = List.of(new SimpleGrantedAuthority(roleName));
-                    var authentication = new UsernamePasswordAuthenticationToken(user, null, authorities);
+
+                    var authentication = new UsernamePasswordAuthenticationToken(user.getEmail(), null, authorities);
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
             }

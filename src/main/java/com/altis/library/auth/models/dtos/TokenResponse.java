@@ -1,4 +1,4 @@
-package com.altis.library.auth.dtos;
+package com.altis.library.auth.models.dtos;
 
 public record TokenResponse(
         String token,

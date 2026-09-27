@@ -33,14 +33,17 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UserResponse> getMyProfile(Authentication authentication) {
-        return ResponseEntity.ok(userService.findByEmail(authentication.getName()));
+    public ResponseEntity<UserResponse> getMe(Authentication authentication) {
+        String email = authentication.getName();
+        return ResponseEntity.ok(userService.findByEmail(email));
     }
 
     @PatchMapping("/me")
-    public ResponseEntity<UserResponse> updateMyProfile(@RequestBody UserUpdateRequest request, Authentication authentication) {
-        return ResponseEntity.ok(userService.updateByEmail(authentication.getName(), request));
+    public ResponseEntity<UserResponse> updateMe(Authentication authentication, @Valid @RequestBody UserUpdateRequest request) {
+        String email = authentication.getName();
+        return ResponseEntity.ok(userService.updateByEmail(email, request));
     }
+
     @GetMapping("/search")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<UserResponse>> search(

@@ -128,6 +128,13 @@ public class LoanService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<LoanResponse> findByUserEmail(String email) {
+        UserEntity user = userRepository.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado!"));
+        return findByUserId(user.getId());
+    }
+
     private LoanEntity updateStatusDelay(LoanEntity loan) {
         if (loan.getStatus() == LoansStatus.RENTED && LocalDate.now().isAfter(loan.getLimitTerm())) {
             loan.setStatus(LoansStatus.OVERDUE);

@@ -5,12 +5,14 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 
 @Service
 public class TokenService {
@@ -48,5 +50,38 @@ public class TokenService {
     }
     private Instant generateExpirationDate() {
         return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-03:00"));
+    }
+
+    public String generateRecoveryToken(String email) {
+        try {
+            Algorithm algorithm = Algorithm.HMAC256(secret);
+            return JWT.create()
+                    .withIssuer("altis-library-api")
+                    .withSubject(email)
+                    .withClaim("type", "RECOVERY")
+                    .withExpiresAt(Instant.now().plus(15, ChronoUnit.MINUTES))
+                    .sign(algorithm);
+        } catch (JWTCreationException exception) {
+            throw new RuntimeException("Erro ao gerar token de recuperação", exception);
+        }
+    }
+
+    public String validateRecoveryToken(String token) {
+        try {
+            Algorithm algorithm = Algorithm.HMAC256(secret);
+            DecodedJWT jwt = JWT.require(algorithm)
+                    .withIssuer("altis-library-api")
+                    .build()
+                    .verify(token);
+
+            String type = jwt.getClaim("type").asString();
+            if (!"RECOVERY".equals(type)) {
+                throw new IllegalArgumentException("Token inválido para esta operação!");
+            }
+
+            return jwt.getSubject();
+        } catch (JWTVerificationException exception) {
+            throw new IllegalArgumentException("Token de recuperação inválido ou expirado!");
+        }
     }
 }

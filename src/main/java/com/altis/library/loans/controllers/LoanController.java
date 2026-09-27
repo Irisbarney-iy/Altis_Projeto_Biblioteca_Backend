@@ -4,7 +4,6 @@ import com.altis.library.loans.models.dtos.LoanCreateRequest;
 import com.altis.library.loans.models.dtos.LoanRenewRequest;
 import com.altis.library.loans.models.dtos.LoanResponse;
 import com.altis.library.loans.services.LoanService;
-import com.altis.library.users.models.entities.UserEntity;
 import jakarta.validation.Valid;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
@@ -38,8 +37,8 @@ public class LoanController {
 
     @GetMapping("/me")
     public ResponseEntity<List<LoanResponse>> getMyLoans(Authentication authentication) {
-        UserEntity currentUser = (UserEntity) authentication.getPrincipal();
-        List<LoanResponse> myLoans = loanService.findByUserId(currentUser.getId());
+        String email = authentication.getName();
+        List<LoanResponse> myLoans = loanService.findByUserEmail(email);
         return ResponseEntity.ok(myLoans);
     }
 
@@ -60,6 +59,7 @@ public class LoanController {
     }
 
     @GetMapping("/user/{userId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<LoanResponse>> findByUserId(@PathVariable Long userId) {
         List<LoanResponse> response = loanService.findByUserId(userId);
         return ResponseEntity.ok(response);

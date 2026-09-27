@@ -24,7 +24,7 @@ public class UserService {
 
     @Transactional
     public UserResponse create(UserCreateRequest request) {
-        if (userRepository.existsByEmail(request.email())) {
+        if (userRepository.existsByEmailIgnoreCase(request.email())) {
             throw new IllegalArgumentException("E-mail já cadastrado!");
         }
         if (userRepository.existsByCpf(request.cpf())) {
@@ -37,27 +37,15 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponse update(Long id, UserUpdateRequest request) {
-        UserEntity user = userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado!"));
-
-        if (request.email() != null && !request.email().isBlank()) {
-            if (!user.getEmail().equalsIgnoreCase(request.email()) && userRepository.existsByEmail(request.email())) {
-                throw new IllegalArgumentException("E-mail já está em uso!");
-            }
-        }
-        userMapper.updateEntityFromDto(request, user);
-        UserEntity updatedUser = userRepository.save(user);
-        return userMapper.toResponse(updatedUser);
-    }
-
-    @Transactional
     public UserResponse updateByEmail(String email, UserUpdateRequest request) {
-        UserEntity user = userRepository.findByEmail(email)
+        if (email == null || email.isBlank()) {
+            throw new IllegalArgumentException("E-mail não informado!");
+        }
+        UserEntity user = userRepository.findByEmailIgnoreCase(email.trim())
                 .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado!"));
 
         if (request.email() != null && !request.email().isBlank()) {
-            if (!user.getEmail().equalsIgnoreCase(request.email()) && userRepository.existsByEmail(request.email())) {
+            if (!user.getEmail().equalsIgnoreCase(request.email()) && userRepository.existsByEmailIgnoreCase(request.email())) {
                 throw new IllegalArgumentException("E-mail já está em uso!");
             }
         }
@@ -76,7 +64,10 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public UserResponse findByEmail(String email) {
-        UserEntity user = userRepository.findByEmail(email)
+        if (email == null || email.isBlank()) {
+            throw new IllegalArgumentException("E-mail não informado!");
+        }
+        UserEntity user = userRepository.findByEmailIgnoreCase(email.trim())
                 .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado!"));
         return userMapper.toResponse(user);
     }

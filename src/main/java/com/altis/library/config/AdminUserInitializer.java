@@ -21,7 +21,7 @@ public class AdminUserInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (userRepository.findByEmail("admin@admin.com").isEmpty()) {
+        if (userRepository.findByEmailIgnoreCase("admin@admin.com").isEmpty()) {
             UserEntity admin = new UserEntity();
             admin.setName("Administrador do Sistema");
             admin.setEmail("admin@admin.com");

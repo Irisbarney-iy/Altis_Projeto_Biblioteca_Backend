@@ -14,6 +14,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
+import com.altis.library.users.models.dtos.UserChangePasswordRequest;
 
 @RestController
 @RequestMapping("/users")
@@ -42,6 +43,16 @@ public class UserController {
     public ResponseEntity<UserResponse> updateMe(Authentication authentication, @Valid @RequestBody UserUpdateRequest request) {
         String email = authentication.getName();
         return ResponseEntity.ok(userService.updateByEmail(email, request));
+    }
+
+    @PatchMapping("/me/password")
+    public ResponseEntity<Void> changePassword(
+            Authentication authentication,
+            @Valid @RequestBody UserChangePasswordRequest request
+    ) {
+        String email = authentication.getName();
+        userService.changePassword(email, request);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/search")

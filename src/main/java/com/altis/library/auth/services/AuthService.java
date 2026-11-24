@@ -23,10 +23,10 @@ public class AuthService {
 
     public TokenResponse login(LoginRequest data) {
         var user = userRepository.findByEmailIgnoreCase(data.email())
-                .orElseThrow(() -> new RuntimeException("E-mail ou senha inválidos"));
+                .orElseThrow(() -> new IllegalArgumentException("E-mail ou senha inválidos"));
 
         if(!passwordEncoder.matches(data.password(), user.getPassword())) {
-            throw new RuntimeException("E-mail ou senha inválidos");
+            throw new IllegalStateException("E-mail ou senha inválidos");
         }
         var token = tokenService.generateToken(user);
 

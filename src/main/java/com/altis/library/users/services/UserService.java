@@ -10,16 +10,20 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.altis.library.users.models.dtos.UserChangePasswordRequest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, UserMapper userMapper) {
+    public UserService(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
@@ -90,6 +94,26 @@ public class UserService {
         UserEntity user = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado!"));
         user.setActive(true);
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void changePassword(String email, UserChangePasswordRequest request) {
+        if(email == null || email.isBlank()) {
+            throw new IllegalArgumentException("E-mail não informado!");
+        }
+
+        UserEntity user = userRepository.findByEmailIgnoreCase(email.trim())
+                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado!"));
+
+        if(!passwordEncoder.matches(request.currentPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("A senha atual está incorreta!");
+        }
+
+        if(passwordEncoder.matches(request.newPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("A nova senha deve ser diferente da senha atual!");
+        }
+        user.setPassword(passwordEncoder.encode(request.newPassword()));
         userRepository.save(user);
     }
 }
